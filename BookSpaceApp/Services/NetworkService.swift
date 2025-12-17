@@ -30,7 +30,7 @@ protocol NetworkServiceDelegate: AnyObject {
 
 class NetworkService {
     
-    var service = NetworkService()
+    static let shared = NetworkService()
     
     // Delegate
     weak var delegate: NetworkServiceDelegate?
