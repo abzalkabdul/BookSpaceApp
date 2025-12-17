@@ -55,7 +55,7 @@ class NetworkService {
     }
     
     // MARK: - 2. Популярные книги
-    func fetchPopularBooks() {
+    func fetchPopularBooks(completion: @escaping (Result<[Book], Error>) -> Void) {
         let parameters: Parameters = [
             "q": "subject:fiction",
             "orderBy": "relevance",

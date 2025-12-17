@@ -4,7 +4,6 @@ struct Book: Codable {
     let authors: [String]?
     let description: String?
     let imageURL: String?
-    let publishedDate: String?
     
     init(from bookItem: BookItem) {
             self.id = bookItem.id
@@ -12,6 +11,5 @@ struct Book: Codable {
             self.authors = bookItem.volumeInfo.authors ?? []
             self.description = bookItem.volumeInfo.description
             self.imageURL = bookItem.volumeInfo.imageLinks?.thumbnail
-            self.publishedDate = bookItem.volumeInfo.publishedDate
         }
 }

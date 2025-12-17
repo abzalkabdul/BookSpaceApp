@@ -1,5 +1,6 @@
 import Foundation
 
+// For UserDefaults
 class StorageManager {
     static let shared = StorageManager()
     
@@ -8,7 +9,8 @@ class StorageManager {
     
     func saveBook(_ book: Book, status: ReadingStatus) {
         var books = getMyBooks()
-        books.removeAll { $0.id == book.id }
+        books.removeAll { currentBook in
+            currentBook.id == book.id }
         books.append(book)
         
         if let encoded = try? JSONEncoder().encode(books) {
@@ -20,7 +22,8 @@ class StorageManager {
     
     func removeBook(_ bookId: String) {
         var books = getMyBooks()
-        books.removeAll { $0.id == bookId }
+        books.removeAll { currentBook in
+            currentBook.id == bookId }
         
         if let encoded = try? JSONEncoder().encode(books) {
             UserDefaults.standard.set(encoded, forKey: booksKey)
