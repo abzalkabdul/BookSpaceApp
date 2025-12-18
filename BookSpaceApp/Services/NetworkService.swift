@@ -32,7 +32,6 @@ class NetworkService {
     
     static let shared = NetworkService()
     
-    // Delegate
     weak var delegate: NetworkServiceDelegate?
     
     private let apiKey = "AIzaSyArqdCEVY9tqN_EfEyhei3RCHyl6z0cRHM"
@@ -55,7 +54,7 @@ class NetworkService {
     }
     
     // MARK: - 2. Популярные книги
-    func fetchPopularBooks(completion: @escaping (Result<[Book], Error>) -> Void) {
+    func fetchPopularBooks() {
         let parameters: Parameters = [
             "q": "subject:fiction",
             "orderBy": "relevance",

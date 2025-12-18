@@ -1,7 +1,7 @@
 import UIKit
 import Kingfisher
 
-class PopularBooksViewController: UIViewController {
+class PopularBooksVС: UIViewController {
     
     @IBOutlet weak var tableView: UITableView!
     
@@ -11,18 +11,11 @@ class PopularBooksViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupUI()
-        setupTableView()
+        NetworkService.shared.delegate = self
         setupActivityIndicator()
         setupRefreshControl()
         fetchPopularBooks()
-    }
-    
-    private func setupUI() {
-        navigationController?.navigationBar.prefersLargeTitles = true
-    }
-    
-    private func setupTableView() {
+        
         tableView.delegate = self
         tableView.dataSource = self
     }
@@ -45,27 +38,7 @@ class PopularBooksViewController: UIViewController {
             activityIndicator.startAnimating()
             tableView.isHidden = true
         }
-        
-        NetworkService.shared.fetchPopularBooks { result in
-            switch result {
-            case .success(let books):
-                self.books = books
-                DispatchQueue.main.async {
-                    self.tableView.reloadData()
-                }
-            case .failure(let error):
-                DispatchQueue.main.async {
-                    self.showErrorAlert(error)
-                }
-            }
-            
-            // Останавливаем индикаторы на главном потоке
-            DispatchQueue.main.async {
-                self.activityIndicator.stopAnimating()
-                self.refreshControl.endRefreshing()
-                self.tableView.isHidden = false
-            }
-        }
+        NetworkService.shared.fetchPopularBooks()
     }
     
     @objc private func refreshData() {
@@ -79,13 +52,10 @@ class PopularBooksViewController: UIViewController {
             message: "Failed to load books: \(error.localizedDescription)",
             preferredStyle: .alert
         )
-        
         alert.addAction(UIAlertAction(title: "Retry", style: .default) { [weak self] _ in
             self?.fetchPopularBooks()
         })
-        
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-        
         present(alert, animated: true)
     }
     
@@ -100,10 +70,21 @@ class PopularBooksViewController: UIViewController {
 }
 
 
-extension PopularBooksViewController: UITableViewDataSource {
+extension PopularBooksVС: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return books.count
+    }
+    
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return "Popular Books"
+    }
+    
+    func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
+        view.tintColor = .blue
+        if let header = view as? UITableViewHeaderFooterView {
+                header.textLabel?.textColor = .white // цвет текста
+            }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -116,9 +97,27 @@ extension PopularBooksViewController: UITableViewDataSource {
         return cell
     }
 }
+extension PopularBooksVС: NetworkServiceDelegate {
+    func didFetchBooks(_ books: [Book]) {
+        self.books = books
+        activityIndicator.stopAnimating()
+        refreshControl.endRefreshing()
+        tableView.isHidden = false
+        tableView.reloadData()
+    }
+    
+    func didFetchBookDetails(_ book: Book) {
+    }
+    
+    func didFailWithError(_ error: NetworkError) {
+        activityIndicator.stopAnimating()
+        refreshControl.endRefreshing()
+        tableView.isHidden = false
+        showErrorAlert(error)
+    }
+}
 
-
-extension PopularBooksViewController: UITableViewDelegate {
+extension PopularBooksVС: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
